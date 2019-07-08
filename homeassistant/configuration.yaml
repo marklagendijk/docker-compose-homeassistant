@@ -1,0 +1,21 @@
+http:
+
+mqtt:
+  broker: mosquitto
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  discovery: true
+  birth_message:
+    topic: 'hass/status'
+    payload: 'online'
+  will_message:
+    topic: 'hass/status'
+    payload: 'offline'
+
+recorder:
+  db_url: !secret postgres_url
+
+group: !include groups.yaml
+automation: !include automations.yaml
+automation old: !include_dir_list automations
+script: !include scripts.yaml

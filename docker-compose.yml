@@ -1,0 +1,89 @@
+version: "3"
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./portainer:/data"
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment: 
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  mosquitto: 
+    container_name: mosquitto
+    image: eclipse-mosquitto
+    restart: always
+    ports: 
+      - "1883:1883"
+    volumes:
+      - ./mosquitto:/mosquitto/config
+
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    image: koenkk/zigbee2mqtt:arm32v6
+    restart: always
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    volumes:
+      - ./zigbee2mqtt:/app/data
+    depends_on: 
+      - mosquitto
+
+  homeassistant:
+    container_name: homeassistant
+    image: homeassistant/armhf-homeassistant
+    restart: always
+    volumes:
+      - ./homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    depends_on: 
+      - postgres
+      - mosquitto
+
+  duckdns:
+    image: linuxserver/duckdns
+    container_name: duckdns
+    restart: always
+    environment:
+      - TZ=Europe/Amsterdam
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+
+  letsencrypt:
+    image: linuxserver/letsencrypt
+    container_name: letsencrypt
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - TZ=Europe/London
+      - URL=${DUCKDNS_SUBDOMAIN}.duckdns.org
+      - SUBDOMAINS=wildcard
+      - VALIDATION=duckdns
+      - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+    
+  apache:
+    container_name: apache
+    build: ./apache
+    ports: 
+      - "443:443"
+    environment: 
+      - ROOT_DOMAIN=${DUCKDNS_SUBDOMAIN}.duckdns.org
+      - HOME_ASSISTANT_SUBDOMAIN=${HOME_ASSISTANT_SUBDOMAIN}
+    volumes:
+      - ./letsencrypt:/letsencrypt
+    depends_on: 
+      - duckdns
+      - letsencrypt
