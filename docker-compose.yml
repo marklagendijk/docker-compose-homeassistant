@@ -1,26 +1,35 @@
 version: "3"
 services:
-  portainer:
-    container_name: portainer
-    image: portainer/portainer
-    restart: always
-    ports:
-      - "9000:9000"
+  watchtower:
+    container_name: watchtower
+    image: containrrr/watchtower:armhf-latest
+    restart: unless-stopped
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./portainer:/data"
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment: 
+      - WATCHTOWER_CLEANUP=true
+      - DOCKER_TLS_VERIFY=true
+      - WATCHTOWER_NOTIFICATIONS=email
+      - WATCHTOWER_NOTIFICATION_EMAIL_FROM=${WATCHTOWER_NOTIFICATION_EMAIL_FROM}
+      - WATCHTOWER_NOTIFICATION_EMAIL_TO=${WATCHTOWER_NOTIFICATION_EMAIL_TO}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER=${WATCHTOWER_NOTIFICATION_EMAIL_FROM}
+      - WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD=${WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD}
 
   postgres:
     container_name: postgres
-    image: postgres
-    restart: always
+    image: postgres:11
+    restart: unless-stopped
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
     environment: 
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=homeassistant
 
   mosquitto: 
     container_name: mosquitto
     image: eclipse-mosquitto
-    restart: always
+    restart: unless-stopped
     ports: 
       - "1883:1883"
     volumes:
@@ -29,32 +38,29 @@ services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
     image: koenkk/zigbee2mqtt:arm32v6
-    restart: always
+    restart: unless-stopped
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
     volumes:
       - ./zigbee2mqtt:/app/data
-    depends_on: 
-      - mosquitto
 
   homeassistant:
     container_name: homeassistant
-    image: homeassistant/armhf-homeassistant
-    restart: always
+    image: homeassistant/home-assistant
+    restart: unless-stopped
     volumes:
       - ./homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
-    depends_on: 
-      - postgres
-      - mosquitto
 
   duckdns:
     image: linuxserver/duckdns
     container_name: duckdns
-    restart: always
+    restart: unless-stopped
     environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=Europe/Amsterdam
       - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
       - TOKEN=${DUCKDNS_TOKEN}
@@ -62,10 +68,12 @@ services:
   letsencrypt:
     image: linuxserver/letsencrypt
     container_name: letsencrypt
-    restart: always
+    restart: unless-stopped
     cap_add:
       - NET_ADMIN
     environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=Europe/London
       - URL=${DUCKDNS_SUBDOMAIN}.duckdns.org
       - SUBDOMAINS=wildcard
@@ -75,8 +83,9 @@ services:
       - ./letsencrypt:/etc/letsencrypt
     
   apache:
+    image: httpd:2.4
     container_name: apache
-    build: ./apache
+    restart: unless-stopped
     ports: 
       - "443:443"
     environment: 
@@ -84,6 +93,6 @@ services:
       - HOME_ASSISTANT_SUBDOMAIN=${HOME_ASSISTANT_SUBDOMAIN}
     volumes:
       - ./letsencrypt:/letsencrypt
-    depends_on: 
-      - duckdns
-      - letsencrypt
+      - ./apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache/conf/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
+      - ./apache/conf/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
