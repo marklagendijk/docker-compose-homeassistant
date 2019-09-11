@@ -93,6 +93,6 @@ services:
       - HOME_ASSISTANT_SUBDOMAIN=${HOME_ASSISTANT_SUBDOMAIN}
     volumes:
       - ./letsencrypt:/letsencrypt
-      - ./apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - ./apache/conf/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
-      - ./apache/conf/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
+      - ./apache/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf

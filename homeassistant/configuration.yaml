@@ -1,4 +1,4 @@
-http:
+default_config:
 
 mqtt:
   broker: mosquitto
