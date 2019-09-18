@@ -1,5 +1,7 @@
 default_config:
 
+discovery:
+
 mqtt:
   broker: mosquitto
   username: !secret mqtt_username
