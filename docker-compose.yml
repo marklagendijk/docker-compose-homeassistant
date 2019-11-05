@@ -64,7 +64,6 @@ services:
       - TZ=Europe/Amsterdam
       - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
       - TOKEN=${DUCKDNS_TOKEN}
-
   letsencrypt:
     image: linuxserver/letsencrypt
     container_name: letsencrypt
@@ -80,7 +79,7 @@ services:
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
     volumes:
-      - ./letsencrypt:/etc/letsencrypt
+      - ./letsencrypt:/config
     
   apache:
     image: httpd:2.4
@@ -92,7 +91,7 @@ services:
       - ROOT_DOMAIN=${DUCKDNS_SUBDOMAIN}.duckdns.org
       - HOME_ASSISTANT_SUBDOMAIN=${HOME_ASSISTANT_SUBDOMAIN}
     volumes:
-      - ./letsencrypt:/letsencrypt
-      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - ./apache/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
-      - ./apache/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./letsencrypt/etc/letsencrypt:/letsencrypt
+      - ./apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache/conf/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
+      - ./apache/conf/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
