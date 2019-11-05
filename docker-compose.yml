@@ -64,6 +64,7 @@ services:
       - TZ=Europe/Amsterdam
       - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
       - TOKEN=${DUCKDNS_TOKEN}
+  
   letsencrypt:
     image: linuxserver/letsencrypt
     container_name: letsencrypt
