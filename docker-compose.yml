@@ -37,7 +37,7 @@ services:
 
   zigbee2mqtt:
     container_name: zigbee2mqtt
-    image: koenkk/zigbee2mqtt:arm32v6
+    image: koenkk/zigbee2mqtt
     restart: unless-stopped
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
