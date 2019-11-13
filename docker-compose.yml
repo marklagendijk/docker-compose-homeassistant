@@ -2,7 +2,7 @@ version: "3"
 services:
   watchtower:
     container_name: watchtower
-    image: containrrr/watchtower:armhf-latest
+    image: containrrr/watchtower
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
