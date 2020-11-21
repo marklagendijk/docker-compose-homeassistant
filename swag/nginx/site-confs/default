@@ -1,0 +1,53 @@
+## Version 2019/08/01 - Changelog: https://github.com/linuxserver/docker-letsencrypt/commits/master/root/defaults/default
+
+# redirect all traffic to https
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+	server_name _;
+	return 301 https://$host$request_uri;
+}
+
+# main server block
+server {
+	listen 443 ssl http2 default_server;
+	listen [::]:443 ssl http2 default_server;
+	include /config/nginx/ssl.conf;
+	server_name _;
+	
+	root /config/www;
+	index index.html;
+	client_max_body_size 0;
+
+    add_header Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'unsafe-inline' 'self'; font-src 'self'; img-src 'self' https://img.shields.io https://*.githubusercontent.com; connect-src https://api.github.com";
+    add_header Feature-Policy "accelerometer 'none'; camera 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; payment 'none'; usb 'none'";
+	add_header Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()";
+
+	location / {
+		try_files $uri $uri/ /index.html =404;
+	}
+}
+
+server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	include /config/nginx/ssl.conf;
+	server_name homeassistant.*;
+	
+	client_max_body_size 0;
+
+	location /api/websocket {
+		include /config/nginx/proxy.conf;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_pass http://homeassistant:8123;
+	}
+	
+	location / {
+		include /config/nginx/proxy.conf;
+		proxy_pass http://homeassistant:8123;
+	}
+}
+
+# enable proxy cache for auth
+proxy_cache_path cache/ keys_zone=auth_cache:10m;

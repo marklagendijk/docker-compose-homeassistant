@@ -7,5 +7,4 @@ This setup contains the following:
 - [zigbee2mqtt](https://hub.docker.com/r/koenkk/zigbee2mqtt/) => Bridge from Zigbee sniffer to MQTT.
 - [homeassistant](https://hub.docker.com/r/homeassistant/armhf-homeassistant/) => Application for managing your home automation.
 - [duckdns](https://hub.docker.com/r/linuxserver/duckdns) => Service for updating your DDNS record at Duck DNS.
-- [letsencrypt](https://hub.docker.com/r/linuxserver/letsencrypt) => Service for creating HTTPS certificates via LetsEncrypt.
-- [apache](https://hub.docker.com/_/httpd) => Web server. Used to proxy HTTP traffic to HomeAssistant.
+- [swag](https://hub.docker.com/r/linuxserver/letsencrypt) => Webserver with automatic HTTPS certificates via LetsEncrypt. Used to proxy to home assistant

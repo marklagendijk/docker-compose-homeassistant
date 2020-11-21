@@ -65,7 +65,7 @@ services:
       - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
       - TOKEN=${DUCKDNS_TOKEN}
 
-  letsencrypt:
+  swag:
     image: linuxserver/letsencrypt
     container_name: letsencrypt
     restart: unless-stopped
@@ -80,19 +80,4 @@ services:
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
     volumes:
-      - ./letsencrypt:/etc/letsencrypt
-    
-  apache:
-    image: httpd:2.4
-    container_name: apache
-    restart: unless-stopped
-    ports: 
-      - "443:443"
-    environment: 
-      - ROOT_DOMAIN=${DUCKDNS_SUBDOMAIN}.duckdns.org
-      - HOME_ASSISTANT_SUBDOMAIN=${HOME_ASSISTANT_SUBDOMAIN}
-    volumes:
-      - ./letsencrypt:/letsencrypt
-      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - ./apache/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
-      - ./apache/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./swag:/config
