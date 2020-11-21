@@ -1,7 +1,6 @@
 # docker-compose-homeassistant
 Docker Compose example repository based on my home server setup, which runs on a Raspberry Pi.
 This setup contains the following:
-- [portainer](https://hub.docker.com/r/portainer/portainer) => Web application for monitoring / managing Docker.
 - [postgres](https://hub.docker.com/_/postgres) => Database server. Used by HomeAssistant.
 - [mosquitto](https://hub.docker.com/_/eclipse-mosquitto) => MQTT server. Used by MQTT devices, zigbee2mqtt and HomeAssistant. 
 - [zigbee2mqtt](https://hub.docker.com/r/koenkk/zigbee2mqtt/) => Bridge from Zigbee sniffer to MQTT.

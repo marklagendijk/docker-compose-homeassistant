@@ -2,7 +2,7 @@ version: "3"
 services:
   watchtower:
     container_name: watchtower
-    image: containrrr/watchtower:armhf-latest
+    image: containrrr/watchtower
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -37,7 +37,7 @@ services:
 
   zigbee2mqtt:
     container_name: zigbee2mqtt
-    image: koenkk/zigbee2mqtt:arm32v6
+    image: koenkk/zigbee2mqtt
     restart: unless-stopped
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
@@ -64,8 +64,13 @@ services:
       - TZ=Europe/Amsterdam
       - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
       - TOKEN=${DUCKDNS_TOKEN}
+<<<<<<< HEAD
 
   swag:
+=======
+  
+  letsencrypt:
+>>>>>>> b043ac0c2651b8a67184dc9fb44994c6b3055935
     image: linuxserver/letsencrypt
     container_name: letsencrypt
     restart: unless-stopped
@@ -80,4 +85,23 @@ services:
       - VALIDATION=duckdns
       - DUCKDNSTOKEN=${DUCKDNS_TOKEN}
     volumes:
+<<<<<<< HEAD
       - ./swag:/config
+=======
+      - ./letsencrypt:/config
+    
+  apache:
+    image: httpd:2.4
+    container_name: apache
+    restart: unless-stopped
+    ports: 
+      - "443:443"
+    environment: 
+      - ROOT_DOMAIN=${DUCKDNS_SUBDOMAIN}.duckdns.org
+      - HOME_ASSISTANT_SUBDOMAIN=${HOME_ASSISTANT_SUBDOMAIN}
+    volumes:
+      - ./letsencrypt/etc/letsencrypt:/letsencrypt
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache/extra/httpd-ssl.conf:/usr/local/apache2/conf/extra/httpd-ssl.conf
+      - ./apache/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+>>>>>>> b043ac0c2651b8a67184dc9fb44994c6b3055935
